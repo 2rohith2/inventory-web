@@ -13,7 +13,6 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import {
   Badge,
-  Box,
   Button,
   ButtonGroup,
   Checkbox,
@@ -23,11 +22,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  FormControl,
-  FormHelperText,
-  Grid,
   InputAdornment,
-  InputLabel,
   ListItemText,
   Paper,
   Skeleton,
@@ -121,7 +116,7 @@ export default function ProductsTable() {
           ? Number(aValue) - Number(bValue)
           : Number(bValue) - Number(aValue);
       });
-  }, [search, order, orderBy, selectedCategories, products]);
+  }, [search, order, orderBy, selectedCategories, allProducts]);
 
   const categories = [
     ...new Set(allProducts.map((product) => product.category)),
@@ -245,7 +240,7 @@ export default function ProductsTable() {
 
   useEffect(() => {
     setSelectedCategories([...new Set(allProducts.map((p) => p.category))]);
-  }, [products]);
+  }, [allProducts]);
 
   useEffect(() => {
     if (deleteProductId) {

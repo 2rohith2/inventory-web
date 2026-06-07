@@ -1,5 +1,20 @@
 import { createTheme } from "@mui/material/styles";
 
+declare module "@mui/material/styles" {
+  interface Palette {
+    rowHighlight: {
+      background: string;
+      foreground: string;
+    };
+  }
+  interface PaletteOptions {
+    rowHighlight?: {
+      background?: string;
+      foreground?: string;
+    };
+  }
+}
+
 export const lightTheme = createTheme({
   palette: {
     mode: "light",

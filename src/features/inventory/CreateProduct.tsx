@@ -12,11 +12,12 @@ import {
   Grid,
   TextField,
 } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
+
+import { queryKeys } from "./keys";
+import { addProduct } from "./service";
 
 import { useToast } from "@/components/Toast";
-import { addProduct } from "./service";
-import { useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "./keys";
 
 export default function CreateProduct() {
   const { showToast } = useToast();
