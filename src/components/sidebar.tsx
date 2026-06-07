@@ -72,6 +72,9 @@ export default function Sidebar() {
       sx={{
         height: "100vh",
         overflow: "hidden",
+        padding: 1,
+        borderRight: "1px solid",
+        borderColor: "divider",
       }}
     >
       <img src={logo} alt="Logo" width="100%" />
