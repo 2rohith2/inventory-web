@@ -1,19 +1,24 @@
-import { apiFetch, apiRequest } from "./api";
+import { apiRequest } from "./api";
+import type { AddProductType } from "./keys";
 
 export function getProducts() {
-  return apiFetch("/products");
+  return apiRequest<void, void>('/products', "GET");
 }
 
 export function getProductsCount() {
-  return apiFetch("/products/count");
+  return apiRequest<void, void>('/products/count', "GET");
 }
 
 export function getLowStockProductsCount() {
-  return apiFetch("/products/low-stock/count");
+  return apiRequest<void, void>('/products/low-stock/count', "GET");
+}
+
+export function getLowStockProducts() {
+  return apiRequest<void, void>('/products/low-stock?limit=5', "GET");
 }
 
 export function getOutOfStockProductsCount() {
-  return apiFetch("/products/out-of-stock/count");
+  return apiRequest<void, void>('/products/out-of-stock/count', "GET");
 }
 
 export function deleteProductById(id: string) {
@@ -24,4 +29,8 @@ export function updateProductQuantityById(id: string, quantity: number) {
   return apiRequest<{ quantity: number }, void>(`/products/${id}/stock`, "PATCH", {
     quantity,
   });
+}
+
+export function addProduct(product: AddProductType) {
+  return apiRequest<AddProductType, void>('/products', "POST", product);
 }
