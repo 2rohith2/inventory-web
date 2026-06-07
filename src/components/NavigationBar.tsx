@@ -10,7 +10,6 @@ import {
   Typography,
 } from "@mui/material";
 
-
 type Props = {
   mode: "light" | "dark";
   setMode: Dispatch<SetStateAction<"light" | "dark">>;
@@ -26,7 +25,9 @@ export default function NavigationBar({ mode, setMode }: Props) {
         <ToggleButtonGroup
           value={mode}
           exclusive
-          onChange={(_event, selectedMode) => setMode(selectedMode)}
+          onChange={(_event, selectedMode) =>
+            selectedMode && setMode(selectedMode)
+          }
           aria-label="text alignment"
         >
           <ToggleButton value="light" aria-label="Light Mode">
