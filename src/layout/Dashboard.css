@@ -1,0 +1,66 @@
+#root {
+  max-width: 100%;
+  margin: 0 auto;
+  min-height: 100svh;
+  box-sizing: border-box;
+
+  --success-background: #dcfce7;
+  --success-foreground: #166534;
+  --warning-background: #fef3c7;
+  --warning-foreground: #92400e;
+  --error-background: #fee2e2;
+  --error-foreground: #991b1b;
+}
+
+.section {
+  padding: 0px 16px;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  border-radius: 30px;
+  width: 60px;
+  height: 60px;
+}
+
+.success-container {
+  background-color: var(--success-background);
+}
+
+.success-icon {
+  color: var(--success-foreground);
+}
+
+.lowstock-container {
+  background-color: var(--warning-background);
+}
+
+.lowstock-icon {
+  color: var(--warning-foreground);
+}
+
+.outofstock-container {
+  background-color: var(--error-background);
+}
+
+.outofstock-icon {
+  color: var(--error-foreground);
+}
+
+.MuiToggleButton-root.Mui-selected {
+  background-color: #f37447 !important;
+  color: #fff !important;
+}
+
+.MuiToggleButton-root.Mui-selected:hover {
+  background-color: #e0633a !important;
+}
+
+.MuiToggleButton-root {
+  width: 40px;
+  height: 40px;
+}
