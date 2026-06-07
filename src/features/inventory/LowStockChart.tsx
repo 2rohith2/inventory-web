@@ -1,122 +1,107 @@
+import { useEffect } from "react";
+
+import { Skeleton } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { useQuery } from "@tanstack/react-query";
 import {
   Bar,
   BarChart,
   CartesianGrid,
   Legend,
-  Line,
-  LineChart,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
 
-const chart = [
-  {
-    name: "Page A",
-    uv: 4000,
-    pv: 2400,
-    amt: 2400,
-  },
-  {
-    name: "Page B",
-    uv: 3000,
-    pv: 1398,
-    amt: 2210,
-  },
-  {
-    name: "Page C",
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: "Page D",
-    uv: 2780,
-    pv: 3908,
-    amt: 2000,
-  },
-  {
-    name: "Page E",
-    uv: 1890,
-    pv: 4800,
-    amt: 2181,
-  },
-  {
-    name: "Page F",
-    uv: 2390,
-    pv: 3800,
-    amt: 2500,
-  },
-  {
-    name: "Page G",
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
-  },
-];
+import { getLowStockProducts } from "./service";
+
+import { useToast } from "@/components/Toast";
 
 export default function LowStockChart() {
+  const {
+    data: products = { data: [] },
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["lowStockProducts"],
+    queryFn: getLowStockProducts,
+  });
+
+  const { showToast } = useToast();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
+  const chartColors = {
+    axis: isDark ? "#94a3b8" : "#64748b",
+    grid: isDark ? "#7889a1" : "#253a55",
+    tooltipBg: isDark ? "#1e293b" : "#ffffff",
+    text: isDark ? "#f1f5f9" : "#1e1e1e",
+  };
+
+  useEffect(() => {
+    if (isError) {
+      showToast(
+        `Error when trying to fetch Low Stock Products - ${error?.message}`,
+        "error",
+      );
+    }
+  }, [isError, error, showToast]);
+
   return (
     <>
-      <BarChart
-        responsive
-        data={chart}
-        layout="vertical"
-        margin={{ top: 40 }}
-        style={{
-          width: "100%",
-          maxWidth: "600px",
-          aspectRatio: 1.5,
-        }}
-      >
-        <text
-          x="50%"
-          y={20}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          style={{ fontSize: 16, fontWeight: 600 }}
-        >
-          Top 5 Lowest Stock Products
-        </text>
-        <CartesianGrid strokeDasharray="3 3" />
-        <YAxis type="category" dataKey="name" />
-        <XAxis type="number" dataKey="amt" />
-        <Bar dataKey="amt" fill="#e0633a" barSize={20} />
-        <Tooltip />
-        <Legend />
-      </BarChart>
+      {isLoading && (
+        <>
+          <Skeleton variant="rounded" animation="wave" height={100} />
+          <br />
+          <Skeleton variant="rounded" animation="wave" height={100} />
+        </>
+      )}
 
-      <LineChart
-        responsive
-        data={chart}
-        style={{
-          maxWidth: "600px",
-          height: "100%",
-          aspectRatio: 1.8,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" stroke="var(--color-text-3)" />
-        <YAxis stroke="var(--color-text-3)" />
-        <Tooltip
-          cursor={{
-            stroke: "var(--color-border-2)",
+      {!isLoading && !isError && (
+        <BarChart
+          responsive
+          data={products?.data ?? []}
+          layout="vertical"
+          margin={{ top: 40 }}
+          style={{
+            width: "100%",
+            maxWidth: "600px",
+            maxHeight: "350px",
+            aspectRatio: 1.5,
           }}
-          contentStyle={{
-            backgroundColor: "var(--color-surface-raised)",
-            borderColor: "var(--color-border-2)",
-          }}
-        />
-        <Legend />
-        <Line
-          type="monotone"
-          dataKey="amt"
-          dot={{
-            fill: "var(--color-surface-base)",
-          }}
-          activeDot={{ r: 8, stroke: "var(--color-surface-base)" }}
-        />
-      </LineChart>
+        >
+          <text
+            x="50%"
+            y={20}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            style={{ fontSize: 16, fontWeight: 700, fill: chartColors.axis }}
+          >
+            Top 5 Lowest Stock Products
+          </text>
+          <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+          <XAxis
+            type="number"
+            dataKey="quantity"
+            tick={{ fill: chartColors.axis }}
+          />
+          <YAxis
+            type="category"
+            dataKey="name"
+            width={200}
+            tick={{ fill: chartColors.axis }}
+          />
+          <Bar dataKey="quantity" name="Quantity" fill="#e0633a" barSize={20} />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: chartColors.tooltipBg,
+              color: chartColors.text,
+            }}
+          />
+          <Legend />
+        </BarChart>
+      )}
     </>
   );
 }
