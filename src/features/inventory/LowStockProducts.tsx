@@ -18,7 +18,7 @@ import { useToast } from "@/components/Toast";
 
 export default function LowStockProducts() {
   const {
-    data: productsCount,
+    data: productsCount = { data: { count: 0 } },
     isLoading,
     isError,
     error,
@@ -50,7 +50,7 @@ export default function LowStockProducts() {
             <Stack>
               <Typography variant="body2">Low stock Products</Typography>
               <Typography variant="h4">
-                <b>{productsCount.data.count}</b>
+                <b>{productsCount?.data?.count}</b>
               </Typography>
             </Stack>
           </Grid>
