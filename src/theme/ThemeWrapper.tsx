@@ -2,11 +2,10 @@ import { useState } from "react";
 
 import { ThemeProvider, CssBaseline } from "@mui/material";
 
-import App from "../App";
+import Dashboard from "../layout/Dashboard";
 
 import { darkTheme } from "./dark";
 import { lightTheme } from "./light";
-
 
 type ThemeMode = "light" | "dark";
 
@@ -17,7 +16,7 @@ export default function ThemeWrapper() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <App mode={mode} setMode={setMode} />
+      <Dashboard mode={mode} setMode={setMode} />
     </ThemeProvider>
   );
 }
