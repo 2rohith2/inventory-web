@@ -15,6 +15,7 @@ import {
   Badge,
   Box,
   Button,
+  ButtonGroup,
   Checkbox,
   CircularProgress,
   Dialog,
@@ -22,7 +23,11 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControl,
+  FormHelperText,
+  Grid,
   InputAdornment,
+  InputLabel,
   ListItemText,
   Paper,
   Skeleton,
@@ -41,11 +46,13 @@ import {
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import { useTheme } from "@mui/material/styles";
 import type { SortDirection } from "@mui/material/TableCell";
 import { useQueryClient } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 
-import { queryKeys } from "./queryKeys";
+import CreateProduct from "./CreateProduct";
+import { queryKeys, type ProductType } from "./keys";
 import {
   deleteProductById,
   getProducts,
@@ -57,31 +64,21 @@ import { useToast } from "@/components/Toast";
 type Order = "asc" | "desc";
 type OrderBy = "name" | "sku" | "category" | "quantity" | "threshold" | "price";
 
-type ProductType = {
-  id: string;
-  name: string;
-  sku: string;
-  category: string;
-  quantity: number;
-  threshold: number;
-  price: number;
-};
-
 export default function ProductsTable() {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
   const [order, setOrder] = useState<SortDirection>("asc");
   const [orderBy, setOrderBy] = useState<OrderBy>("name");
-  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
   const [updateProductId, setUpdateProductId] = useState<string | null>(null);
   const [updatedQuantity, setUpdatedQuantity] = useState<number>(0);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const theme = useTheme();
   const [isQuantityUpdatingOrDeleting, setIsQuantityUpdatingOrDeleting] =
     useState<boolean>(false);
-
-  const [showDialog, setShowDialog] = useState<boolean>(false);
 
   const {
     data: products = { data: [] },
@@ -95,23 +92,24 @@ export default function ProductsTable() {
 
   const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const allProducts: ProductType[] = products?.data ?? [];
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - products.data.length) : 0;
-
-  const allProducts: ProductType[] = products.data;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - allProducts.length) : 0;
 
   const filteredData = useMemo(() => {
-    const data = allProducts.filter((a) =>
-      a.name.toLowerCase().includes(search.toLowerCase()),
+    const data = allProducts.filter(
+      (product) =>
+        product.name.toLowerCase().includes(search.toLowerCase()) ||
+        product.sku.toLowerCase().includes(search.toLowerCase()),
     );
 
     return data
-      .filter((a) => selectedCategories.includes(a.category))
-      .sort((a, b) => {
-        const aValue = a[orderBy];
-        const bValue = b[orderBy];
+      .filter((product) => selectedCategories.includes(product.category))
+      .sort((aProduct, bProduct) => {
+        const aValue = aProduct[orderBy];
+        const bValue = bProduct[orderBy];
 
         if (typeof aValue === "string" && typeof bValue === "string") {
           return order === "asc"
@@ -129,34 +127,37 @@ export default function ProductsTable() {
     ...new Set(allProducts.map((product) => product.category)),
   ];
 
-  const handleRequestSort = (property: OrderBy) => {
+  function handleRequestSort(property: OrderBy) {
     const isAsc = orderBy === property && order === "asc";
     const newOrder: Order = isAsc ? "desc" : "asc";
 
     setOrder(newOrder);
     setOrderBy(property);
-  };
+  }
 
-  const handleChangePage = (
+  function handleChangePage(
     _event: MouseEvent<HTMLButtonElement> | null,
     newPage: number,
-  ) => {
+  ) {
     setPage(newPage);
-  };
+  }
 
-  const handleChangeRowsPerPage = (
+  function handleChangeRowsPerPage(
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
+  ) {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-  };
+  }
 
-  const menuClick = (event: MouseEvent<HTMLElement>) => {
+  function showMenu(event: MouseEvent<HTMLElement>) {
     setAnchorEl(event.currentTarget);
-  };
+  }
 
-  const menuOptionClick = (selectedCategory: string, toAdd: boolean) => {
-    if (toAdd) {
+  function handleMenuSelection(
+    selectedCategory: string,
+    isCategoryToBeAdded: boolean,
+  ) {
+    if (isCategoryToBeAdded) {
       setSelectedCategories([...selectedCategories, selectedCategory]);
     } else {
       const newCat = selectedCategories.filter(
@@ -164,7 +165,7 @@ export default function ProductsTable() {
       );
       setSelectedCategories(newCat);
     }
-  };
+  }
 
   async function updateQuantity() {
     if (!updateProductId) return;
@@ -180,6 +181,9 @@ export default function ProductsTable() {
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.lowStockProductsCount,
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.lowStockProducts,
       });
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -210,6 +214,9 @@ export default function ProductsTable() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.lowStockProductsCount,
       });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.lowStockProducts,
+      });
     } catch (error: unknown) {
       if (error instanceof Error) {
         showToast(error.message || "Failed to delete product", "error");
@@ -219,7 +226,7 @@ export default function ProductsTable() {
     } finally {
       setIsQuantityUpdatingOrDeleting(false);
       setDeleteProductId(null);
-      setShowDialog(false);
+      setShowDeleteDialog(false);
     }
   }
 
@@ -242,7 +249,7 @@ export default function ProductsTable() {
 
   useEffect(() => {
     if (deleteProductId) {
-      setShowDialog(true);
+      setShowDeleteDialog(true);
     }
   }, [deleteProductId]);
 
@@ -257,7 +264,7 @@ export default function ProductsTable() {
         }}
       >
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Table
+          Products
         </Typography>
         <Stack
           direction="row"
@@ -295,18 +302,18 @@ export default function ProductsTable() {
             }}
             variant="standard"
           />
-
-          <IconButton onClick={menuClick}>
-            <Badge
-              badgeContent={selectedCategories.length}
-              color="primary"
-              component="div"
-            >
-              <Box>
+          <ButtonGroup aria-label="Basic button group">
+            <CreateProduct />
+            <Button onClick={showMenu}>
+              <Badge
+                badgeContent={selectedCategories.length}
+                color="primary"
+                component="div"
+              >
                 <FilterListIcon />
-              </Box>
-            </Badge>
-          </IconButton>
+              </Badge>
+            </Button>
+          </ButtonGroup>
         </Stack>
       </Stack>
       <Menu
@@ -340,13 +347,13 @@ export default function ProductsTable() {
             <Checkbox
               checked={selectedCategories.includes(cat)}
               onClick={() =>
-                menuOptionClick(cat, !selectedCategories.includes(cat))
+                handleMenuSelection(cat, !selectedCategories.includes(cat))
               }
             />
             <ListItemText
               primary={cat}
               onClick={() =>
-                menuOptionClick(cat, !selectedCategories.includes(cat))
+                handleMenuSelection(cat, !selectedCategories.includes(cat))
               }
             />
           </MenuItem>
@@ -446,93 +453,106 @@ export default function ProductsTable() {
                       page * rowsPerPage + rowsPerPage,
                     )
                   : filteredData
-                ).map((row) => (
-                  <TableRow
-                    key={row.name}
-                    sx={{
-                      "&:last-child td, &:last-child th": { border: 0 },
-                    }}
-                  >
-                    <TableCell component="th" scope="row">
-                      {row.name}
-                    </TableCell>
-                    <TableCell align="right">{row.sku}</TableCell>
-                    <TableCell align="right">{row.category}</TableCell>
-                    <TableCell align="right">
-                      {isQuantityUpdatingOrDeleting &&
-                        updateProductId === row.id && (
+                ).map((row) => {
+                  const isLowStockProduct =
+                    row.quantity !== 0 && row.quantity <= row.threshold;
+                  return (
+                    <TableRow
+                      key={row.name}
+                      sx={{
+                        "&:last-child td, &:last-child th": { border: 0 },
+                        backgroundColor: isLowStockProduct
+                          ? theme.palette.rowHighlight.background
+                          : "inherit",
+
+                        color: isLowStockProduct
+                          ? theme.palette.rowHighlight.foreground
+                          : "inherit",
+                      }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {row.name}
+                      </TableCell>
+                      <TableCell align="right">{row.sku}</TableCell>
+                      <TableCell align="right">{row.category}</TableCell>
+                      <TableCell align="right">
+                        {isQuantityUpdatingOrDeleting &&
+                          updateProductId === row.id && (
+                            <CircularProgress
+                              size={23}
+                              aria-label="Updating Quantity"
+                            />
+                          )}
+                        {!isQuantityUpdatingOrDeleting &&
+                          updateProductId === row.id && (
+                            <TextField
+                              size="small"
+                              type="number"
+                              autoFocus
+                              value={updatedQuantity}
+                              sx={{ width: 100 }}
+                              onChange={(
+                                event: React.ChangeEvent<HTMLInputElement>,
+                              ) =>
+                                setUpdatedQuantity(Number(event.target.value))
+                              }
+                              onBlur={() => updateQuantity()}
+                              onKeyDown={(event) => {
+                                if (event.key === "Enter") {
+                                  updateQuantity();
+                                }
+
+                                if (event.key === "Escape") {
+                                  setUpdateProductId(null);
+                                }
+                              }}
+                            />
+                          )}
+                        {updateProductId !== row.id && (
+                          <IconButton
+                            disabled={isQuantityUpdatingOrDeleting}
+                            sx={{
+                              "&.Mui-disabled": {
+                                cursor: "not-allowed",
+                                pointerEvents: "auto",
+                              },
+                            }}
+                            onClick={() => {
+                              setUpdateProductId(row.id);
+                              setUpdatedQuantity(row.quantity);
+                            }}
+                          >
+                            {row.quantity}
+                          </IconButton>
+                        )}
+                      </TableCell>
+                      <TableCell align="right">{row.threshold}</TableCell>
+                      <TableCell align="right">{row.price}</TableCell>
+                      <TableCell align="right">
+                        {isQuantityUpdatingOrDeleting &&
+                        deleteProductId === row.id ? (
                           <CircularProgress
                             size={23}
                             aria-label="Updating Quantity"
                           />
-                        )}
-                      {!isQuantityUpdatingOrDeleting &&
-                        updateProductId === row.id && (
-                          <TextField
-                            size="small"
-                            type="number"
-                            autoFocus
-                            value={updatedQuantity}
-                            sx={{ width: 100 }}
-                            onChange={(
-                              event: React.ChangeEvent<HTMLInputElement>,
-                            ) => setUpdatedQuantity(Number(event.target.value))}
-                            onBlur={() => updateQuantity()}
-                            onKeyDown={(event) => {
-                              if (event.key === "Enter") {
-                                updateQuantity();
-                              }
-
-                              if (event.key === "Escape") {
-                                setUpdateProductId(null);
-                              }
+                        ) : (
+                          <IconButton
+                            disabled={isQuantityUpdatingOrDeleting}
+                            sx={{
+                              "&.Mui-disabled": {
+                                cursor: "not-allowed",
+                                pointerEvents: "auto",
+                              },
                             }}
-                          />
+                            onClick={() => setDeleteProductId(row.id)}
+                          >
+                            <DeleteOutlinedIcon color="error" />
+                          </IconButton>
                         )}
-                      {updateProductId !== row.id && (
-                        <IconButton
-                          disabled={isQuantityUpdatingOrDeleting}
-                          sx={{
-                            "&.Mui-disabled": {
-                              cursor: "not-allowed",
-                              pointerEvents: "auto",
-                            },
-                          }}
-                          onClick={() => {
-                            setUpdateProductId(row.id);
-                            setUpdatedQuantity(row.quantity);
-                          }}
-                        >
-                          {row.quantity}
-                        </IconButton>
-                      )}
-                    </TableCell>
-                    <TableCell align="right">{row.threshold}</TableCell>
-                    <TableCell align="right">{row.price}</TableCell>
-                    <TableCell align="right">
-                      {isQuantityUpdatingOrDeleting &&
-                      deleteProductId === row.id ? (
-                        <CircularProgress
-                          size={23}
-                          aria-label="Updating Quantity"
-                        />
-                      ) : (
-                        <IconButton
-                          disabled={isQuantityUpdatingOrDeleting}
-                          sx={{
-                            "&.Mui-disabled": {
-                              cursor: "not-allowed",
-                              pointerEvents: "auto",
-                            },
-                          }}
-                          onClick={() => setDeleteProductId(row.id)}
-                        >
-                          <DeleteOutlinedIcon color="error" />
-                        </IconButton>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
                 {emptyRows > 0 && (
                   <TableRow
                     style={{
@@ -565,8 +585,8 @@ export default function ProductsTable() {
       )}
 
       <Dialog
-        open={showDialog}
-        onClose={() => setShowDialog(false)}
+        open={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
         aria-labelledby="delete-product"
         aria-describedby="delete-product-description"
         role="alertdialog"
@@ -578,13 +598,20 @@ export default function ProductsTable() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => deleteProduct()}>Agree</Button>
           <Button
+            color="primary"
+            onClick={() => deleteProduct()}
+            variant="contained"
+          >
+            Delete
+          </Button>
+          <Button
+            color="secondary"
+            variant="outlined"
             onClick={() => {
-              setShowDialog(false);
+              setShowDeleteDialog(false);
               setDeleteProductId(null);
             }}
-            autoFocus
           >
             Cancel
           </Button>
