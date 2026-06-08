@@ -450,7 +450,7 @@ export default function ProductsTable() {
                   : filteredData
                 ).map((row) => {
                   const isLowStockProduct =
-                    row.quantity !== 0 && row.quantity <= row.threshold;
+                    row.quantity > 0 && row.quantity <= row.threshold;
                   return (
                     <TableRow
                       key={row.name}
