@@ -81,7 +81,7 @@ export default function ProductsTable() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["products"],
+    queryKey: [queryKeys.products[0]],
     queryFn: getProducts,
   });
 

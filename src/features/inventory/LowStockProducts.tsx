@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 
+import { queryKeys } from "./keys";
 import { getLowStockProductsCount } from "./service";
 
 import { useToast } from "@/components/Toast";
@@ -23,7 +24,7 @@ export default function LowStockProducts() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["lowStockProductsCount"],
+    queryKey: [queryKeys.lowStockProductsCount[0]],
     queryFn: getLowStockProductsCount,
   });
 

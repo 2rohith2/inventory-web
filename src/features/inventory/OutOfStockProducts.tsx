@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 
+import { queryKeys } from "./keys";
 import { getOutOfStockProductsCount } from "./service";
 
 import { useToast } from "@/components/Toast";
@@ -23,7 +24,7 @@ export default function OutOfStockProducts() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["outOfStockProductsCount"],
+    queryKey: [queryKeys.outOfStockProductsCount[0]],
     queryFn: getOutOfStockProductsCount,
   });
 

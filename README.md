@@ -1,6 +1,6 @@
-# 📦 Inventory API
+# 📦 Inventory Web
 
-RESTful Inventory Management API for tracking products, stock levels, warehouses, and inventory transactions.
+A responsive web application for managing and monitoring inventory across multiple warehouses.
 
 ## 🚀 About Me
 

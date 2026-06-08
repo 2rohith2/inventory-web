@@ -13,6 +13,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { queryKeys } from "./keys";
 import { getLowStockProducts } from "./service";
 
 import { useToast } from "@/components/Toast";
@@ -24,7 +25,7 @@ export default function LowStockChart() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["lowStockProducts"],
+    queryKey: [queryKeys.lowStockProducts[0]],
     queryFn: getLowStockProducts,
   });
 

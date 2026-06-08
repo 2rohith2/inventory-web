@@ -46,7 +46,14 @@ export default function CreateProduct() {
   }
 
   async function crateProduct() {
-    if (!name || !sku || !category) {
+    if (
+      !name ||
+      !sku ||
+      !category ||
+      price === 0 ||
+      quantity === 0 ||
+      threshold === 0
+    ) {
       showToast("Please enter all the required fields", "error");
       return;
     }
@@ -92,7 +99,7 @@ export default function CreateProduct() {
       >
         <DialogTitle id="create-product">Create Product</DialogTitle>
         <DialogContent>
-          <Grid container rowSpacing={2} columnSpacing={2}>
+          <Grid container rowSpacing={2} columnSpacing={2} sx={{ mt: 2 }}>
             <Grid size={6}>
               <FormControl fullWidth>
                 <TextField

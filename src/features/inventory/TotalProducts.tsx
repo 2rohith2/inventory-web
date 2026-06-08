@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 
+import { queryKeys } from "./keys";
 import { getProductsCount } from "./service";
 
 import { useToast } from "@/components/Toast";
@@ -23,7 +24,7 @@ export default function TotalProducts() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["productsCount"],
+    queryKey: [queryKeys.productsCount[0]],
     queryFn: getProductsCount,
   });
 
