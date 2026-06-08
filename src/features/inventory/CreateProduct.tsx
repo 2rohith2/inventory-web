@@ -105,7 +105,7 @@ export default function CreateProduct() {
                 <TextField
                   id="name"
                   aria-describedby="name-helper-text"
-                  label="Name"
+                  label="Name *"
                   onChange={(event) => setName(event.target.value)}
                   value={name}
                   variant="outlined"
@@ -120,7 +120,7 @@ export default function CreateProduct() {
                 <TextField
                   id="sku"
                   aria-describedby="sku-helper-text"
-                  label="SKU"
+                  label="SKU *"
                   onChange={(event) => setSKU(event.target.value)}
                   value={sku}
                   variant="outlined"
@@ -135,7 +135,7 @@ export default function CreateProduct() {
                 <TextField
                   id="category"
                   aria-describedby="category-helper-text"
-                  label="Category"
+                  label="Category *"
                   onChange={(event) => setCategory(event.target.value)}
                   value={category}
                   variant="outlined"
@@ -150,7 +150,7 @@ export default function CreateProduct() {
                 <TextField
                   id="quantity"
                   aria-describedby="quantity-helper-text"
-                  label="Stock"
+                  label="Stock *"
                   onChange={(event) => setQuantity(Number(event.target.value))}
                   type="number"
                   value={quantity}
@@ -166,7 +166,7 @@ export default function CreateProduct() {
                 <TextField
                   id="threshold"
                   aria-describedby="threshold-helper-text"
-                  label="Threshold"
+                  label="Threshold *"
                   onChange={(event) => setThreshold(Number(event.target.value))}
                   type="number"
                   value={threshold}
@@ -182,7 +182,7 @@ export default function CreateProduct() {
                 <TextField
                   id="price"
                   aria-describedby="price-helper-text"
-                  label="Price"
+                  label="Price *"
                   onChange={(event) => setPrice(Number(event.target.value))}
                   type="number"
                   value={price}
