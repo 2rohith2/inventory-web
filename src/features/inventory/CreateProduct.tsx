@@ -99,7 +99,7 @@ export default function CreateProduct() {
       >
         <DialogTitle id="create-product">Create Product</DialogTitle>
         <DialogContent>
-          <Grid container rowSpacing={2} columnSpacing={2} sx={{ mt: 2 }}>
+          <Grid container rowSpacing={2} columnSpacing={2} sx={{ mt: 0.5 }}>
             <Grid size={6}>
               <FormControl fullWidth>
                 <TextField
