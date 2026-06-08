@@ -4,12 +4,13 @@ import { Box, Grid, Stack } from "@mui/material";
 import "./Dashboard.css";
 
 import NavigationBar from "../components/NavigationBar";
-import Sidebar from "../components/Sidebar";
 import LowStockChart from "../features/inventory/LowStockChart";
 import LowStockProducts from "../features/inventory/LowStockProducts";
 import OutOfStockProducts from "../features/inventory/OutOfStockProducts";
 import ProductsTable from "../features/inventory/ProductsTable";
 import TotalProducts from "../features/inventory/TotalProducts";
+
+import Sidebar from "@/components/sidebar";
 
 type Props = {
   mode: "light" | "dark";
