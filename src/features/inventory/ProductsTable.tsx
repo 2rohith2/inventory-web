@@ -47,7 +47,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 
 import CreateProduct from "./CreateProduct";
-import { queryKeys, type ProductType } from "./keys";
+import { queryKeys, type ProductType } from "./enums";
 import {
   deleteProductById,
   getProducts,

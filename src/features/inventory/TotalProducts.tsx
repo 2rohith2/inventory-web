@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 
-import { queryKeys } from "./keys";
+import { queryKeys } from "./enums";
 import { getProductsCount } from "./service";
 
 import { useToast } from "@/components/Toast";

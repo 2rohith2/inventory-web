@@ -13,7 +13,7 @@ import {
   YAxis,
 } from "recharts";
 
-import { queryKeys } from "./keys";
+import { queryKeys } from "./enums";
 import { getLowStockProducts } from "./service";
 
 import { useToast } from "@/components/Toast";

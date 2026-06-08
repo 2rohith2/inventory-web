@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { queryKeys } from "./keys";
+import { queryKeys } from "./enums";
 import { addProduct } from "./service";
 
 import { useToast } from "@/components/Toast";
